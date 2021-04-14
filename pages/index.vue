@@ -2,11 +2,24 @@
 import { mapActions, mapGetters } from 'vuex'
 export default {
   name: 'Home',
+  data: () => ({
+    loading: false,
+    search: '',
+  }),
   computed: {
     ...mapGetters(['getItems']),
   },
+  watch: {
+    async search(after, before) {
+      this.loading = true
+      const resp = await this.listItems(this.search)
+      if (resp) this.loading = false
+    },
+  },
   async mounted() {
-    await this.listItems()
+    this.loading = true
+    const resp = await this.listItems()
+    if (resp) this.loading = false
   },
   methods: {
     ...mapActions(['listItems']),
@@ -15,26 +28,25 @@ export default {
 </script>
 
 <template>
-  <div class="home-container bg-current p-4">
-    <Header />
-
-    <div class="container mx-auto">
-      <Input class="my-4" />
-      <div
-        class="grid grid-cols-1 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-4"
-      >
-        <Card v-for="(item, index) in getItems" :key="index" :item="item" />
+  <div>
+    <Toolbar />
+    <div class="home-container bg-current p-4">
+      <Header />
+      <div class="container mx-auto">
+        <Input class="my-4" :search.sync="search" />
+        <div
+          v-if="!loading"
+          class="grid grid-cols-1 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-4"
+        >
+          <Card v-for="(item, index) in getItems" :key="index" :item="item" />
+        </div>
+        <Loading v-else />
       </div>
     </div>
   </div>
 </template>
 
 <style>
-/* Sample `apply` at-rules with Tailwind CSS
-.container {
-@apply min-h-screen flex justify-center items-center text-center mx-auto;
-}
-*/
 .home-container {
   display: flex;
   flex-direction: column;

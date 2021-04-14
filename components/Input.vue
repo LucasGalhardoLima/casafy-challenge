@@ -1,6 +1,20 @@
 <script>
 export default {
   name: 'Input',
+  props: ['search'],
+  data: () => ({
+    input: '',
+  }),
+  computed: {
+    _search: {
+      get() {
+        return this.search
+      },
+      set(newValue) {
+        this.$emit('update:search', newValue)
+      },
+    },
+  },
 }
 </script>
 <template>
@@ -13,7 +27,7 @@ export default {
         />
       </svg>
     </div>
-    <input placeholder="Search your feelings" />
+    <input v-model="_search" placeholder="Search your feelings" />
   </div>
 </template>
 
